@@ -20,12 +20,25 @@ const register = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        let imageUrl = null;
+        let imagePublicId = null;
+        if(req.file){
+            const uploaded = await cloudinary.uploader.upload(req.file.path,{
+                folder: 'users'
+            });
+            imageUrl = uploaded.secure_url;
+            imagePublicId = uploaded.public_id;
+
+        }
+
         const newUser = new User({
             username,
             password: hashedPassword,
             role: 'user',
-            image: req.file ? req.file.path : null
+            image: imageUrl,
+            imagePublicId: imagePublicId
         });
+
         await newUser.save();
         res.status(201).json({ message: 'User registered successfully' });
 
@@ -83,9 +96,11 @@ const addItemToUser = async (req, res) => {
             { new: true }
         ).populate('items');
 
-        console.log("Updated user:", updatedUser);
-
-        return res.json(updatedUser);
+       
+        const userObj = updatedUser.toObject();
+        delete userObj.password;
+         console.log("Updated user:", userObj);
+        return res.json(userObj);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error adding item to user' });
@@ -107,10 +122,8 @@ const deleteUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        if(userToDelete.image) {
-            const imageUrl = userToDelete.image;
-            const publicId = imageUrl.split('/').pop().split('.')[0];
-            await cloudinary.uploader.destroy(`useres/${publicId}`);
+        if(userToDelete.imagePublicId) {
+            await cloudinary.uploader.destroy(userToDelete.imagePublicId);
         }
 
         await User.findByIdAndDelete(userIdToDelete);
@@ -145,11 +158,66 @@ const changeRole = async (req, res) => {
         }
         userToUpdate.role = role;
         await userToUpdate.save();
-        res.json({ message: 'User role updated successfully', user: userToUpdate });
+
+        const userObj = userToUpdate.toObject();
+        delete userObj.password;
+
+        res.json({ message: 'User role updated successfully', user: userObj });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error changing user role' });
     }
 };
 
-module.exports = { register, login, addItemToUser, deleteUser, changeRole };
+const updateUser = async (req, res) => {
+    try {
+        const loggedUserId = req.user.id || req.user.userId;
+        const loggedUserRole = req.user.role;
+        const userIdToUpdate = req.params.id;
+
+        if (loggedUserRole !== 'admin' && loggedUserId !== userIdToUpdate) {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        const user = await User.findById(userIdToUpdate);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const { username, password } = req.body;
+
+        if (username) user.username = username;
+
+        if (password) {
+            const hashed = await bcrypt.hash(password, 10);
+            user.password = hashed;
+        }
+
+        if (req.file) {
+
+            if (user.imagePublicId) {
+                await cloudinary.uploader.destroy(user.imagePublicId);
+            }
+
+            const uploaded = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'users'
+            });
+
+            user.image = uploaded.secure_url;
+            user.imagePublicId = uploaded.public_id;
+        }
+
+        await user.save();
+
+        const userObj = user.toObject();
+        delete userObj.password;
+
+        res.json(userObj);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating user' });
+    }
+};
+
+module.exports = { register, login, addItemToUser, deleteUser, changeRole, updateUser};
