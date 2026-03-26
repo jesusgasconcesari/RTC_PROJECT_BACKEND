@@ -38,17 +38,26 @@ De esta colección se ha creado una seed para falicitar las pruebas del proyecto
 Todos los usuarios tienen un array de items. Se usa $addToSet para evitar duplicados. Los items nuevos no sobreescriben los anteriores. Se utiliza populate para obtener los datos completos.
 
 ## Endpoints principales
-### CRUD Item
-- GET(getAllItems)  /api/items       
-- GET(getItembyId)  /api/items/:id
-- POST(createItem)  /api/items
-- PUT(updateItem)   /api/items/:id
-- DELETE(deleteItem) /api/items/:id
+### Usuarios
 
-### CRUD User
-- POST(register) /api/users/register
-- POST(login)    /api/users/login
-- PATCH(addItemToUser)  /api/users/add-item
-- DELETE(deleteUser)   /api/users/:id
-- PATCH(changeRole)  /api/users/role/:id
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST   | /users/register | Registrar nuevo usuario |
+| POST   | /users/login | Login de usuario |
+| GET    | /users/:id | Obtener usuario por ID |
+| PUT    | /users/:id | Actualizar usuario (username, password, image) |
+| PUT    | /users/:id/role | Cambiar rol de usuario (solo admins) |
+| DELETE | /users/:id | Eliminar usuario |
+| POST   | /users/items | Añadir item al array de usuario |
+
+### Items
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET    | /items | Obtener todos los items |
+| GET    | /items/:id | Obtener item por ID |
+| POST   | /items | Crear nuevo item |
+| PUT    | /items/:id | Actualizar item |
+| DELETE | /items/:id | Eliminar item |
+
  
