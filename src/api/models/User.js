@@ -9,6 +9,7 @@ const userSchema = new Schema(
         password: { type: String, required: true },
         role: { type: String, enum: ['admin', 'user'], default: 'user' },
         image: { type: String },
+        imagePublicId: { type: String },
         items: [{ type: mongoose.Types.ObjectId, ref: 'Item' }]
     }
 )
