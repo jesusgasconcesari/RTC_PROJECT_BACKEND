@@ -11,11 +11,11 @@ const {
 
 const { isAuth } = require('../../middlewares/auth.middleware.js');
 
-router.get('/items', getAllItems);
-router.get('/items/:id', getItemById);
+router.get('/', getAllItems);
+router.get('/:id', getItemById);
 
-router.post('/items', isAuth, createItem);
-router.put('/items/:id', isAuth, updateItem);
-router.delete('/items/:id', isAuth, deleteItem);
+router.post('/', isAuth, createItem);
+router.put('/:id', isAuth, updateItem);
+router.delete('/:id', isAuth, deleteItem);
 
 module.exports = router;

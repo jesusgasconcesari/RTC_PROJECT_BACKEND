@@ -10,6 +10,6 @@ router.post('/login', login);
 router.patch('/add-item', isAuth, addItemToUser);
 router.delete('/:id', isAuth, deleteUser);
 router.patch('/role/:id', isAuth, changeRole);
-router.put('/users/:id', isAuth, updateUser);
+router.put('/:id', isAuth, updateUser);
 
 module.exports = router;

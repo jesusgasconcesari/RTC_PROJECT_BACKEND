@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const cloudinary = require('../../config/cloudinary.js');
 
 
-const register = async (req, res) => {
+exports.register = async (req, res) => {
     try {
         const { username, password} = req.body;
 
@@ -23,11 +23,8 @@ const register = async (req, res) => {
         let imageUrl = null;
         let imagePublicId = null;
         if(req.file){
-            const uploaded = await cloudinary.uploader.upload(req.file.path,{
-                folder: 'users'
-            });
-            imageUrl = uploaded.secure_url;
-            imagePublicId = uploaded.public_id;
+            imageUrl = req.file.path;
+            imagePublicId = req.file.filename;
 
         }
 
@@ -48,7 +45,7 @@ const register = async (req, res) => {
     }
 };
 
-const login = async (req, res) => {
+exports.login = async (req, res) => {
     try {
         const { username, password } = req.body;
 
@@ -72,7 +69,7 @@ const login = async (req, res) => {
     }
 };
 
-const addItemToUser = async (req, res) => {
+exports.addItemToUser = async (req, res) => {
     try {
         const userId = req.user.id || req.user.userId;
         const { itemId } = req.body;
@@ -107,7 +104,7 @@ const addItemToUser = async (req, res) => {
     }
 };
 
-const deleteUser = async (req, res) => {
+exports.deleteUser = async (req, res) => {
     try {
         const loggedUserId = req.user.id || req.user.userId;
         const loggedUserRole = req.user.role;
@@ -134,7 +131,7 @@ const deleteUser = async (req, res) => {
     }
 };
 
-const changeRole = async (req, res) => {
+exports.changeRole = async (req, res) => {
     try {
         const loggedUserId = req.user.id || req.user.userId;
         const loggedUserRole = req.user.role;
@@ -169,7 +166,7 @@ const changeRole = async (req, res) => {
     }
 };
 
-const updateUser = async (req, res) => {
+exports.updateUser = async (req, res) => {
     try {
         const loggedUserId = req.user.id || req.user.userId;
         const loggedUserRole = req.user.role;
@@ -220,4 +217,3 @@ const updateUser = async (req, res) => {
     }
 };
 
-module.exports = { register, login, addItemToUser, deleteUser, changeRole, updateUser};

@@ -32,10 +32,10 @@ exports.getItemById = async (req, res) => {
 
 exports.createItem = async (req, res) => {
    try {
-        const { name, description } = req.body;
+        const { name, type } = req.body;
 
-        if (!name || !description) {
-            return res.status(400).json({ message: 'Name and description are required' });
+        if (!name || !type) {
+            return res.status(400).json({ message: 'Name and type are required' });
         }
 
         const existingItem = await Item.findOne({ name });
@@ -43,11 +43,11 @@ exports.createItem = async (req, res) => {
             return res.status(409).json({ message: 'Item already exists' });
         }
 
-        const newItem = new Item({ name, description });
+        const newItem = new Item({ name, type });
         await newItem.save();
 
         res.status(201).json(newItem);
-   } catch (eror) {
+   } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error creating item' });
    }

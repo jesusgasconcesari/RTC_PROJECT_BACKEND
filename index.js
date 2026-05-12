@@ -13,7 +13,7 @@ app.use("/hola", (req, res) => {
 });
 
 const itemRoutes = require('./src/api/routes/item.routes.js');
-app.use('/api', itemRoutes);
+app.use('/api/items', itemRoutes);
 
 const userRoutes = require('./src/api/routes/user.routes.js');
 app.use('/api/users', userRoutes);
