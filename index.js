@@ -8,9 +8,6 @@ connectDB();
 
 app.use(express.json());
 
-app.use("/hola", (req, res) => {
-    return res.send("Hola mundo desde Express");
-});
 
 const itemRoutes = require('./src/api/routes/item.routes.js');
 app.use('/api/items', itemRoutes);

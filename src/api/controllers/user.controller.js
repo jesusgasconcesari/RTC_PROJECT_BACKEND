@@ -1,4 +1,3 @@
-require("dotenv").config();
 const User = require('../models/User.js');
 const Item = require('../models/Item.js');
 const bcrypt = require('bcrypt');
@@ -71,7 +70,7 @@ exports.login = async (req, res) => {
 
 exports.addItemToUser = async (req, res) => {
     try {
-        const userId = req.user.id || req.user.userId;
+        const userId = req.user.userId;
         const { itemId } = req.body;
 
         console.log(userId);
@@ -106,7 +105,7 @@ exports.addItemToUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
     try {
-        const loggedUserId = req.user.id || req.user.userId;
+        const loggedUserId = req.user.userId;
         const loggedUserRole = req.user.role;
         const userIdToDelete = req.params.id;
 
@@ -133,7 +132,7 @@ exports.deleteUser = async (req, res) => {
 
 exports.changeRole = async (req, res) => {
     try {
-        const loggedUserId = req.user.id || req.user.userId;
+        const loggedUserId = req.user.userId;
         const loggedUserRole = req.user.role;
         const userIdToUpdate = req.params.id;
         const { role } = req.body;
@@ -168,7 +167,7 @@ exports.changeRole = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     try {
-        const loggedUserId = req.user.id || req.user.userId;
+        const loggedUserId = req.user.userId;
         const loggedUserRole = req.user.role;
         const userIdToUpdate = req.params.id;
 
@@ -196,12 +195,8 @@ exports.updateUser = async (req, res) => {
                 await cloudinary.uploader.destroy(user.imagePublicId);
             }
 
-            const uploaded = await cloudinary.uploader.upload(req.file.path, {
-                folder: 'users'
-            });
-
-            user.image = uploaded.secure_url;
-            user.imagePublicId = uploaded.public_id;
+            user.image = req.file.path;
+            user.imagePublicId = req.file.filename;
         }
 
         await user.save();
@@ -217,3 +212,36 @@ exports.updateUser = async (req, res) => {
     }
 };
 
+exports.getUsers = async (req, res) => {
+    try {
+        const users = await User.find()
+            .select('-password')
+            .populate('items');
+
+        res.json(users);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error getting users' });
+    }
+};
+
+exports.getUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const user = await User.findById(id)
+            .select('-password')
+            .populate('items');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error getting user' });
+    }
+};
